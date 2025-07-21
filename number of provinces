@@ -1,0 +1,87 @@
+class Solution {
+    void dfs(vector<vector<int>>& isConnected, int node, vector<int> &vis){
+        vis[node]=1;
+        for(int i=0;i<isConnected.size();i++){
+            if (isConnected[node][i] && !vis[i]) dfs(isConnected, i, vis);
+        }
+    }
+public:
+    int findCircleNum(vector<vector<int>>& isConnected) {
+        int n=isConnected.size();
+        vector<int> vis(n, 0);
+        int ans=0;
+        for(int i=0;i<n;i++){
+            if (!vis[i]){
+                ans++;
+                dfs(isConnected, i, vis);
+            }
+        }
+        return ans;
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class disjointSet{
+public:
+    vector<int> size, parent;
+    disjointSet(int n){
+        size.resize(n+1, 1);
+        parent.resize(n+1);
+        for(int i=0;i<=n;i++) parent[i]=i;
+    }
+    
+    int findUPar(int node){
+        if (parent[node]==node) return node;
+        return parent[node]=findUPar(parent[node]);
+    }
+    
+    void unionBySize(int u, int v){
+        int ulp_u=findUPar(u);
+        int ulp_v=findUPar(v);
+        if (ulp_u == ulp_v) return; // union only if different sets
+        if (size[ulp_u]<size[ulp_v]){
+            parent[ulp_u]=ulp_v;
+            size[ulp_v]+=size[ulp_u];
+        }
+        else{
+            parent[ulp_v]=ulp_u;
+            size[ulp_u]+=size[ulp_v];
+        }
+    }
+};
+class Solution {
+public:
+    int findCircleNum(vector<vector<int>>& isConnected) {
+        // TC : O(n^2)
+        // SC : O(n)
+        int n=isConnected.size();
+        disjointSet ds(n-1);
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if (isConnected[i][j]==1) ds.unionBySize(i, j);
+            }
+        }
+        int ans=0;
+        for(int i=0;i<n;i++){
+            if (ds.parent[i]==i) ans++;
+        }
+        return ans;
+    }
+};
